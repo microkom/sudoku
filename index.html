@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Sudoku </title>
+  <style>
+    * {
+      -khtml-user-select: none;
+      -o-user-select: none;
+      -moz-user-select: -moz-none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    body {
+      font-size: 12px;
+      text-align: center;
+      font-family: 'Lucida Grande', Verdana, 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Sans Unicode', Geneva, sans-serif;
+      /* background: linear-gradient(to right, ivory, snow); */
+      /* background: linear-gradient(to right, antiquewhite, beige, cornsilk, ivory, bisque); */
+    }
+    
+    h1 {
+      font-size: 3rem;
+      font-weight: bolder;
+    }
+    
+    table {
+      margin: auto;
+      /*   border: 1px solid rgb(127, 127, 127); */
+    }
+    
+    td,
+    .td {
+      height: 1.4rem;
+      width: 1.4rem;
+      /* background-color: #ccc; */
+      /* border-left: .2rem solid #fafafa;
+        border-top: .2rem solid #fafafa;
+        border-right: .2rem solid #aaa;
+        border-bottom: .2rem solid #aaa; */
+      font-weight: 900;
+      font-size: .8rem;
+    }
+    /*     .clicked {
+      border: .2rem solid #e6e1e1;
+      background-color: #eee;
+      color: #666666;
+      animation: fadein .35s;
+    }
+     */
+    /*     .mine {
+      background-color: cornflowerblue;
+      animation: fadein .35s;
+    } */
+    /*     .mine_lost {
+      background-color: crimson;
+      animation: fadein .35s;
+    } */
+    /*     .mine_fake {
+      background-color: #f5f050;
+      animation: fadein .35s;
+    } */
+    
+    .mode_area {
+      margin: auto;
+      border: 1px solid black;
+      border-radius: 7px;
+      padding: 1rem;
+      max-width: fit-content;
+    }
+    
+    .text {
+      font-size: 1.2rem;
+      font-weight: bolder;
+    }
+    
+    .crimson {
+      color: crimson;
+    }
+    /*     .flag:before {
+      font-size: .8rem;
+      content: "#";
+      animation: fadein .5s;
+    } */
+    /*     .hesitation:before {
+      font-size: .8rem;
+      content: "?";
+      animation: fadein .5s;
+    } */
+    
+    #you_lost {
+      font-size: 1.7rem;
+      font-weight: bolder;
+      color: crimson;
+      animation: fadein 1s;
+    }
+    
+    #you_won {
+      font-size: 1.7rem;
+      font-weight: bolder;
+      color: cornflowerblue;
+      animation: fadein .5s;
+    }
+    
+    @keyframes fadein {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    .button {
+      padding: 5px 10px;
+      font-size: 1.2rem;
+      text-align: center;
+      cursor: pointer;
+      outline: none;
+      color: #000000;
+      background-color: #e9c581;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 6px #999;
+    }
+    
+    .button:hover {
+      background-color: #eea333
+    }
+    
+    .button_pressed {
+      background-color: #3b3534;
+      color: #e9e4e4;
+      border: 2px solid coral;
+      /* transform: translateY(4px);
+        box-shadow: 0 2px #999; */
+    }
+    
+    .border_won {
+      border: .3rem solid cornflowerblue;
+    }
+    
+    .border_lost {
+      border: .3rem solid red;
+    }
+    
+    .number {
+      padding: .2rem;
+    }
+    
+    #row2 {
+      border-bottom: 2px solid black;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Sudoku </h1>
+  <br>
+  <section id="main_table"></section>
+  <br>
+  <section id="numbers">
+    <span class="number td">1 </span>
+    <span class="number td">2 </span>
+    <span class="number td">3 </span>
+    <span class="number td">4 </span>
+    <span class="number td">5 </span>
+    <span class="number td">6 </span>
+    <span class="number td">7 </span>
+    <span class="number td">8 </span>
+    <span class="number td">9 </span>
+  </section>
+  <br>
+  <section class="mode_area">
+    <!-- <div class="text">Mode</div><br>-->
+    <button class="button" id="button1" onclick="reset(1)">Easy </button>
+    <button class="button" id="button2" onclick="reset(2)">Medium </button>
+    <button class="button" id="button3" onclick="reset(3)">Hard </button>
+  </section>
+  <br>
+  <br>
+  <section id="you_won"></section>
+  <section id="you_lost"></section>
+  <section id="error">
+    <ul></ul>
+  </section>
+  <script type="text/javascript">
+    var board = []
+    var firstClick = true;
+    var stop_clicks = false
+    createBoard()
+
+    function createBoard() {
+      const table = document.createElement("table");
+      table.id = "Board";
+      document.getElementById("main_table").appendChild(table);
+      for (let i = 0; i < 9; i++) {
+        const tr = document.createElement("tr");
+        tr.id = "row" + i;
+        document.getElementById("Board").appendChild(tr);
+        board[i] = [];
+        for (let j = 0; j < 9; j++) {
+          const td = document.createElement("td");
+          //learning point: using data-coords as an id
+          td.dataset.coords = i + "." + j;
+          //  td.dataset.row = i;
+          //  td.dataset.col = j;
+          document.getElementById("row" + i).appendChild(td);
+        }
+      }
+    }
+    let counterG = 0
+    var resetPool = null
+    var indexToBeFilled = []
+    var emergencyCounter = 0;
+    var numberPool = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    var duplicatePool = numberPool.slice()
+
+    // Función para verificar si un número es válido en una posición específica
+    function isValid(board, row, col, num) {
+      // Verificar fila
+      for (let i = 0; i < 9; i++) {
+        if (board[row][i] === num) {
+          return false;
+        }
+      }
+
+      // Verificar columna
+      for (let i = 0; i < 9; i++) {
+        if (board[i][col] === num) {
+          return false;
+        }
+      }
+
+      // Verificar subcuadrícula 3x3
+      const startRow = Math.floor(row / 3) * 3;
+      const startCol = Math.floor(col / 3) * 3;
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (board[startRow + i][startCol + j] === num) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    }
+
+    // Función para resolver el Sudoku utilizando recursión
+    function solveSudoku(board) {
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          if (board[row][col] === 0) {
+            for (let num = 1; num <= 9; num++) {
+              if (isValid(board, row, col, num)) {
+                board[row][col] = num;
+                if (solveSudoku(board)) {
+                  return true;
+                } else {
+                  board[row][col] = 0;
+                }
+              }
+            }
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    // Función para generar un tablero de Sudoku inicialmente vacío
+    function generateEmptyBoard() {
+      const board = [];
+
+
+      for (let i = 0; i < 9; i++) {
+        board.push(Array(9).fill(0));
+      }
+      return board;
+    }
+
+    // Función para llenar el tablero de Sudoku con números aleatorios
+    function fillBoard(board) {
+      // Copiar el tablero vacío para evitar modificarlo directamente
+      const newBoard = JSON.parse(JSON.stringify(board));
+
+      // Array con los números del 1 al 9 en orden aleatorio
+      const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+      shuffleArray(numbers);
+
+      // Llenar la diagonal principal de la subcuadrícula 3x3
+      for (let i = 0; i < 9; i += 3) {
+        fillSubgrid(newBoard, i, i, numbers);
+      }
+
+      // Resolver el Sudoku generado para obtener una solución única
+      solveSudoku(newBoard);
+
+      // Eliminar algunos números del tablero para crear el desafío
+      const numToRemove = Math.floor(Math.random() * 20) + 30;
+      for (let i = 0; i < numToRemove; i++) {
+        const row = Math.floor(Math.random() * 9);
+        const col = Math.floor(Math.random() * 9);
+        newBoard[row][col] = 0;
+      }
+
+      return newBoard;
+    }
+
+    // Función auxiliar para llenar una subcuadrícula 3x3 con números
+    function fillSubgrid(board, startRow, startCol, numbers) {
+      let index = 0;
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          board[startRow + i][startCol + j] = numbers[index];
+          index = (index + 1) % 9;
+        }
+      }
+    }
+
+    // Función auxiliar para mezclar un array utilizando el algoritmo de Fisher-Yates
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Función para imprimir el tablero de Sudoku
+    function printBoard(board) {
+      for (let row = 0; row < 9; row++) {
+        let rowString = "";
+        for (let col = 0; col < 9; col++) {
+          rowString += board[row][col] + " ";
+          const td = document.querySelector('[data-coords="' + row + '.' + col + '"' + ']') //borrar
+          if (board[row][col] > 0)
+            td.textContent = board[row][col]
+        }
+
+
+        console.log(rowString);
+      }
+    }
+
+    // Generar y mostrar el tablero inicial del Sudoku
+    const emptyBoard = generateEmptyBoard();
+    const initialBoard = fillBoard(emptyBoard);
+    console.log("Tablero inicial del Sudoku:");
+    printBoard(initialBoard);
+  </script>
+</body>
+
+</html>
