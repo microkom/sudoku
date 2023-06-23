@@ -30,40 +30,51 @@
     
     table {
       margin: auto;
-      /*   border: 1px solid rgb(127, 127, 127); */
+      border-collapse: collapse;
+      border: 1px solid #acacac;
     }
     
-    td,
-    .td {
-      height: 1.4rem;
-      width: 1.4rem;
-      /* background-color: #ccc; */
+    #row0,
+    #row1,
+    #row3,
+    #row4,
+    #row6,
+    #row7 {
+      border-bottom: 1px solid #acacac;
+    }
+    /* Horizontal division each 3 cells */
+    
+    #row2,
+    #row5 {
+      border-bottom: 2px solid #26536e;
+    }
+    
+    tr :nth-child(even),
+    tr :nth-child(odd) {
+      border-right: 1px solid #acacac;
+    }
+    /* Vertical division each 3 cells */
+    
+    tr :nth-child(3),
+    tr :nth-child(6) {
+      border-right: 2px solid #26536e;
+    }
+    
+    td {
+      height: 1.8rem;
+      width: 1.8rem;
+      background-color: #f0f0f0;
       /* border-left: .2rem solid #fafafa;
         border-top: .2rem solid #fafafa;
         border-right: .2rem solid #aaa;
         border-bottom: .2rem solid #aaa; */
       font-weight: 900;
-      font-size: .8rem;
+      font-size: 1.2rem;
     }
-    /*     .clicked {
-      border: .2rem solid #e6e1e1;
-      background-color: #eee;
-      color: #666666;
-      animation: fadein .35s;
+    
+    .bg_grey {
+      background-color: #f0f0f0;
     }
-     */
-    /*     .mine {
-      background-color: cornflowerblue;
-      animation: fadein .35s;
-    } */
-    /*     .mine_lost {
-      background-color: crimson;
-      animation: fadein .35s;
-    } */
-    /*     .mine_fake {
-      background-color: #f5f050;
-      animation: fadein .35s;
-    } */
     
     .mode_area {
       margin: auto;
@@ -81,16 +92,6 @@
     .crimson {
       color: crimson;
     }
-    /*     .flag:before {
-      font-size: .8rem;
-      content: "#";
-      animation: fadein .5s;
-    } */
-    /*     .hesitation:before {
-      font-size: .8rem;
-      content: "?";
-      animation: fadein .5s;
-    } */
     
     #you_lost {
       font-size: 1.7rem;
@@ -149,34 +150,53 @@
     }
     
     .number {
-      padding: .2rem;
+      display: inline-block;
+      height: 1.6rem;
+      width: 1.6rem;
+      text-align: center;
+      vertical-align: middle;
+      /* padding-left: .4rem;
+      padding-right: .4rem; */
+      padding-top: .3rem;
+      /* padding-bottom: .1rem; */
+      font-size: 1rem;
+      font-weight: bolder;
+      border: 1px solid grey;
     }
     
-    #row2 {
-      border-bottom: 2px solid black;
+    #numbers {
+      margin: 1rem;
+    }
+    
+    td:hover,
+    .number:hover {
+      background-color: #fffd72;
+    }
+    
+    .initial {
+      background-color: #f0f0f0;
+    }
+    
+    .initial:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .userInput {
+      background-color: #fff;
     }
   </style>
 </head>
 
 <body>
-  <h1>Sudoku </h1>
+  <!-- <h1>Sudoku </h1>  -->
   <br>
   <section id="main_table"></section>
   <br>
   <section id="numbers">
-    <span class="number td">1 </span>
-    <span class="number td">2 </span>
-    <span class="number td">3 </span>
-    <span class="number td">4 </span>
-    <span class="number td">5 </span>
-    <span class="number td">6 </span>
-    <span class="number td">7 </span>
-    <span class="number td">8 </span>
-    <span class="number td">9 </span>
+
   </section>
   <br>
   <section class="mode_area">
-    <!-- <div class="text">Mode</div><br>-->
     <button class="button" id="button1" onclick="reset(1)">Easy </button>
     <button class="button" id="button2" onclick="reset(2)">Medium </button>
     <button class="button" id="button3" onclick="reset(3)">Hard </button>
@@ -188,20 +208,24 @@
   <section id="error">
     <ul></ul>
   </section>
+  <section>
+    <span id="variables"></span>
+  </section>
   <script type="text/javascript">
     var board = []
     var firstClick = true;
     var stop_clicks = false
     createBoard()
+    console.log("1")
 
     function createBoard() {
       const table = document.createElement("table");
-      table.id = "Board";
+      table.id = "board";
       document.getElementById("main_table").appendChild(table);
       for (let i = 0; i < 9; i++) {
         const tr = document.createElement("tr");
         tr.id = "row" + i;
-        document.getElementById("Board").appendChild(tr);
+        document.getElementById("board").appendChild(tr);
         board[i] = [];
         for (let j = 0; j < 9; j++) {
           const td = document.createElement("td");
@@ -212,13 +236,49 @@
           document.getElementById("row" + i).appendChild(td);
         }
       }
+      createNumbers();
     }
-    let counterG = 0
-    var resetPool = null
-    var indexToBeFilled = []
-    var emergencyCounter = 0;
-    var numberPool = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    var duplicatePool = numberPool.slice()
+
+
+
+    function createNumbers() {
+      for (let i = 1; i < 10; i++) {
+        _createButton(i);
+      }
+
+      function _createButton(i) {
+        const button = document.createElement("button");
+        button.classList.add('number')
+        button.name = 'b' + i;
+        button.textContent = i;
+        button.value = i;
+        button.setAttribute('onclick', 'callButton(' + i + ')')
+        document.getElementById("numbers").appendChild(button);
+      }
+    }
+
+    function callButton(i) {
+      console.log('calling buttons' + i)
+      let storeInHtml = document.getElementById("variables");
+      let targetCoords = storeInHtml.dataset.coords;
+      if (Number(targetCoords)) {
+        let x = Number(targetCoords[0]);
+        let y = Number(targetCoords[2]);
+        console.log('x y' + x + ' ' + y)
+        const td = document.querySelector('[data-coords="' + x + '.' + y + '"' + ']') //borrar
+        console.log(td.textContent);
+        if (x) {
+          initialBoard[x][y] = [Number(i)]
+          td.textContent = i;
+          td.classList.add('userInput')
+          console.info(targetCoords)
+          console.info(initialBoard)
+        }
+      } else {
+        console.log('click on a fixed number')
+      }
+    }
+
 
     // Función para verificar si un número es válido en una posición específica
     function isValid(board, row, col, num) {
@@ -228,14 +288,12 @@
           return false;
         }
       }
-
       // Verificar columna
       for (let i = 0; i < 9; i++) {
         if (board[i][col] === num) {
           return false;
         }
       }
-
       // Verificar subcuadrícula 3x3
       const startRow = Math.floor(row / 3) * 3;
       const startCol = Math.floor(col / 3) * 3;
@@ -246,10 +304,8 @@
           }
         }
       }
-
       return true;
     }
-
     // Función para resolver el Sudoku utilizando recursión
     function solveSudoku(board) {
       for (let row = 0; row < 9; row++) {
@@ -271,46 +327,39 @@
       }
       return true;
     }
-
     // Función para generar un tablero de Sudoku inicialmente vacío
     function generateEmptyBoard() {
       const board = [];
-
-
       for (let i = 0; i < 9; i++) {
         board.push(Array(9).fill(0));
       }
       return board;
     }
-
     // Función para llenar el tablero de Sudoku con números aleatorios
     function fillBoard(board) {
       // Copiar el tablero vacío para evitar modificarlo directamente
       const newBoard = JSON.parse(JSON.stringify(board));
-
       // Array con los números del 1 al 9 en orden aleatorio
       const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
       shuffleArray(numbers);
-
       // Llenar la diagonal principal de la subcuadrícula 3x3
       for (let i = 0; i < 9; i += 3) {
         fillSubgrid(newBoard, i, i, numbers);
       }
-
       // Resolver el Sudoku generado para obtener una solución única
       solveSudoku(newBoard);
-
-      // Eliminar algunos números del tablero para crear el desafío
+      const finalSudoku = newBoard.slice();
+      console.log("finalSudoku")
+      console.log(finalSudoku)
+        // Eliminar algunos números del tablero para crear el desafío
       const numToRemove = Math.floor(Math.random() * 20) + 30;
       for (let i = 0; i < numToRemove; i++) {
         const row = Math.floor(Math.random() * 9);
         const col = Math.floor(Math.random() * 9);
         newBoard[row][col] = 0;
       }
-
       return newBoard;
     }
-
     // Función auxiliar para llenar una subcuadrícula 3x3 con números
     function fillSubgrid(board, startRow, startCol, numbers) {
       let index = 0;
@@ -321,7 +370,6 @@
         }
       }
     }
-
     // Función auxiliar para mezclar un array utilizando el algoritmo de Fisher-Yates
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -329,7 +377,6 @@
         [array[i], array[j]] = [array[j], array[i]];
       }
     }
-
     // Función para imprimir el tablero de Sudoku
     function printBoard(board) {
       for (let row = 0; row < 9; row++) {
@@ -337,20 +384,58 @@
         for (let col = 0; col < 9; col++) {
           rowString += board[row][col] + " ";
           const td = document.querySelector('[data-coords="' + row + '.' + col + '"' + ']') //borrar
-          if (board[row][col] > 0)
+          if (board[row][col] > 0) {
             td.textContent = board[row][col]
+          }
+          //td.classList.add("initial");
         }
 
-
-        console.log(rowString);
       }
+      addSafe(board)
+
     }
 
+    function addSafe(board) {
+      console.log(board)
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          if (board[i][j] > 0)
+            board[i][j] = [board[i][j], true]
+        }
+      }
+    }
     // Generar y mostrar el tablero inicial del Sudoku
     const emptyBoard = generateEmptyBoard();
     const initialBoard = fillBoard(emptyBoard);
     console.log("Tablero inicial del Sudoku:");
     printBoard(initialBoard);
+    //=================================================================================================
+    var coords = 0;
+    document.onclick = (e) => {
+      const boardNode = document.getElementById('board');
+      const numbersNode = document.getElementById('numbers');
+      const isClickInsideBoard = boardNode.contains(e.target);
+      const isClickInsideNumbers = numbersNode.contains(e.target);
+      const storeInHtml = document.getElementById('variables');
+
+      if (isClickInsideBoard) {
+        let coords = e.target.dataset.coords;
+        let x = Number(coords[0]);
+        let y = Number(coords[2]);
+        storeInHtml.dataset.coords = coords;
+        //console.log(initialBoard)
+        if (initialBoard[x][y][1])
+          storeInHtml.dataset.coords = 0;
+      }
+
+      if (isClickInsideNumbers) {
+
+      }
+    }
+
+    document.oncontextmenu = (e) => {
+      e.preventDefault();
+    }
   </script>
 </body>
 
