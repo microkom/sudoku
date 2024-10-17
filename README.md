@@ -18,14 +18,14 @@ A **Sudoku** game built using **JavaScript**.
    cd sudoku
 
 ## Usage
-Open index.html in your browser to start playing the game.
-Use the provided interface to enter numbers into the Sudoku grid.
-Enjoy solving the puzzle!
+- Open index.html in your browser to start playing the game.
+- Use the provided interface to enter numbers into the Sudoku grid.
+   Enjoy solving the puzzle!
 
 ## Technologies Used
-HTML
-CSS
-JavaScript
+- HTML
+- CSS
+- JavaScript
 
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
