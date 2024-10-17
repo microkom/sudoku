@@ -1,7 +1,5 @@
 # Sudoku
 
-A **Sudoku** game built using **JavaScript**.
-
 ## Features
 
 - Interactive Sudoku puzzle with a clean and user-friendly interface.
@@ -27,5 +25,4 @@ A **Sudoku** game built using **JavaScript**.
 - CSS
 - JavaScript
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+
